@@ -1,0 +1,79 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RuralLearn - Magical Learning</title>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Bangers&display=swap" rel="stylesheet">
+    <style>
+        html, body, #root {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+        }
+        body {
+            font-family: 'Fredoka', sans-serif;
+            overflow-y: auto; /* Allow body scroll */
+            background-color: #1e293b; /* Dark magical base */
+        }
+        .bangers {
+            font-family: 'Bangers', cursive;
+        }
+        /* Custom scrollbar */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #1e293b; }
+        ::-webkit-scrollbar-thumb { background: #fbbf24; border-radius: 4px; }
+
+        /* Magical Animations */
+        @keyframes float {
+          0%, 100% { transform: translateY(0); }
+          50% { transform: translateY(-10px); }
+        }
+        .float { animation: float 3s ease-in-out infinite; }
+
+        @keyframes flag-drop {
+          0% { transform: translateY(-100%) scaleY(0); transform-origin: top; opacity: 0; }
+          100% { transform: translateY(0) scaleY(1); transform-origin: top; opacity: 1; }
+        }
+        .animate-flag { animation: flag-drop 1.5s cubic-bezier(0.17, 0.67, 0.83, 0.67) forwards; }
+
+        @keyframes candy-dash {
+          to { stroke-dashoffset: -100; }
+        }
+        .candy-crush-path {
+          stroke-dasharray: 10;
+          animation: candy-dash 5s linear infinite;
+        }
+
+        .magic-bg {
+          background: radial-gradient(circle at center, #475569 0%, #1e293b 100%);
+        }
+        .candy-bg {
+          background: linear-gradient(180deg, #bae6fd 0%, #f0f9ff 100%);
+        }
+        .parchment {
+          background-color: #f4e4bc;
+          background-image: url("https://www.transparenttextures.com/patterns/old-map.png");
+        }
+        
+        @keyframes sparkle {
+          0%, 100% { opacity: 0; transform: scale(0); }
+          50% { opacity: 1; transform: scale(1); }
+        }
+        .sparkle-particle {
+          position: absolute;
+          width: 4px;
+          height: 4px;
+          background: white;
+          border-radius: 50%;
+          box-shadow: 0 0 10px white;
+          animation: sparkle 2s infinite;
+        }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+<script type="module" src="/src/main.tsx"></script>
+</body>
+</html>

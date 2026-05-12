@@ -1,0 +1,8 @@
+{
+  "name": "Sparky Learning: Rural Education Platform",
+  "description": "An interactive, Sparky-led learning platform for rural students (Class 1-5) featuring video lessons, mini-games, and quizzes in multiple languages.",
+  "requestFramePermissions": [
+    "camera",
+    "microphone"
+  ]
+}

@@ -1,0 +1,99 @@
+{
+  "entities": {
+    "UserProfile": {
+      "title": "User Profile",
+      "description": "Stores user profile and progress data.",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string", "description": "Unique user ID from Firebase Auth." },
+        "studentName": { "type": "string", "description": "Display name of the student." },
+        "schoolName": { "type": "string", "description": "Name of the school." },
+        "role": { "type": "string", "enum": ["Student", "Teacher", "Parent"], "description": "User's role." },
+        "classLevel": { "type": "string", "description": "Current class level (e.g., Preschool, Class 1)." },
+        "language": { "type": "string", "enum": ["English", "Hindi", "Telugu"], "description": "Preferred language." },
+        "board": { "type": "string", "description": "Educational board (e.g., CBSE)." },
+        "house": { "type": "string", "description": "Assigned Hogwarts house." },
+        "progress": {
+          "type": "object",
+          "properties": {
+            "lessonsCompleted": { "type": "array", "items": { "type": "string" } },
+            "quizzesCompleted": { "type": "array", "items": { "type": "string" } },
+            "gamesPlayed": { "type": "array", "items": { "type": "string" } },
+            "unlockedLessons": { "type": "array", "items": { "type": "string" } },
+            "starsEarned": { "type": "number" },
+            "housePoints": { "type": "number" },
+            "xp": { "type": "number" },
+            "currentAvatar": { "type": "string" },
+            "unlockedAvatars": { "type": "array", "items": { "type": "string" } },
+            "lessonStars": { "type": "object" }
+          }
+        }
+      },
+      "required": ["uid", "studentName", "role"]
+    },
+    "Lesson": {
+      "title": "Lesson",
+      "description": "Stores lesson content uploaded by teachers.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "title": { "type": "string" },
+        "videoUrl": { "type": "string" },
+        "description": { "type": "string" },
+        "class": { "type": "string" },
+        "subject": { "type": "string" },
+        "teacherId": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "type": { "type": "string", "enum": ["video", "interactive", "rhyme", "theme_lesson"] }
+      },
+      "required": ["id", "title", "videoUrl", "class", "subject", "teacherId"]
+    },
+    "Assignment": {
+      "title": "Assignment",
+      "description": "A lesson assigned to a student or class.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "lessonId": { "type": "string" },
+        "classLevel": { "type": "string" },
+        "teacherId": { "type": "string" },
+        "assignedAt": { "type": "string", "format": "date-time" },
+        "status": { "type": "string", "enum": ["assigned", "completed"] }
+      },
+      "required": ["id", "lessonId", "classLevel", "teacherId", "assignedAt"]
+    },
+    "Message": {
+      "title": "Message",
+      "description": "A message between a parent and a teacher.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "senderId": { "type": "string" },
+        "receiverId": { "type": "string" },
+        "content": { "type": "string" },
+        "timestamp": { "type": "string", "format": "date-time" },
+        "senderRole": { "type": "string", "enum": ["Parent", "Teacher"] },
+        "senderName": { "type": "string" }
+      },
+      "required": ["id", "senderId", "receiverId", "content", "timestamp", "senderRole"]
+    }
+  },
+  "firestore": {
+    "/users/{uid}": {
+      "schema": "UserProfile",
+      "description": "User profile documents indexed by UID."
+    },
+    "/lessons/{lessonId}": {
+      "schema": "Lesson",
+      "description": "Lesson content documents indexed by lesson ID."
+    },
+    "/assignments/{assignmentId}": {
+      "schema": "Assignment",
+      "description": "Assignments created by teachers."
+    },
+    "/messages/{messageId}": {
+      "schema": "Message",
+      "description": "Messages between parents and teachers."
+    }
+  }
+}

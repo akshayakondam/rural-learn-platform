@@ -1,0 +1,135 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // ===============================================================
+    // Assumed Data Model
+    // ===============================================================
+    //
+    // Collection: users
+    // Document ID: {uid}
+    // Fields:
+    //   - uid: string (required, immutable) - Firebase Auth UID
+    //   - studentName: string (required) - Display name
+    //   - schoolName: string (optional) - School name
+    //   - rollNumber: string (optional) - Student roll number
+    //   - role: string (required, enum: ['Student', 'Teacher', 'Parent']) - User role
+    //   - classLevel: string (optional) - Current class
+    //   - language: string (optional, enum: ['English', 'Hindi', 'Telugu']) - Language
+    //   - board: string (optional) - Educational board
+    //   - house: string (optional) - Hogwarts house
+    //   - progress: map (required) - Progress data
+    //     - lessonsCompleted: list (required) - IDs of completed lessons
+    //     - quizzesCompleted: list (required) - IDs of completed quizzes
+    //     - gamesPlayed: list (required) - IDs of played games
+    //     - unlockedLessons: list (required) - IDs of unlocked lessons
+    //     - starsEarned: number (required) - Total stars
+    //     - housePoints: number (required) - Total house points
+    //     - xp: number (required) - Total experience points
+    //     - currentAvatar: string (optional) - Current avatar ID
+    //     - unlockedAvatars: list (required) - IDs of unlocked avatars
+    //     - lessonStars: map (required) - Stars per lesson ID
+    //
+    // ===============================================================
+
+    // ===============================================================
+    // Helper Functions
+    // ===============================================================
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    function isValidUser(data) {
+      return data.keys().hasAll(['uid', 'studentName', 'role', 'progress']) &&
+             data.uid is string && data.uid.size() > 0 &&
+             data.studentName is string && data.studentName.size() > 0 && data.studentName.size() < 100 &&
+             data.role in ['Student', 'Teacher', 'Parent'] &&
+             data.progress is map &&
+             data.progress.lessonsCompleted is list &&
+             data.progress.quizzesCompleted is list &&
+             data.progress.gamesPlayed is list &&
+             data.progress.unlockedLessons is list &&
+             data.progress.starsEarned is number &&
+             data.progress.housePoints is number &&
+             data.progress.xp is number &&
+             data.progress.unlockedAvatars is list &&
+             data.progress.lessonStars is map;
+    }
+
+    function uidUnchanged() {
+      return !('uid' in request.resource.data) || request.resource.data.uid == request.auth.uid;
+    }
+
+    function uidNotModified() {
+      return !('uid' in request.resource.data) || request.resource.data.uid == resource.data.uid;
+    }
+
+    function roleUnchanged() {
+      return !('role' in request.resource.data) || request.resource.data.role == resource.data.role;
+    }
+
+    function isTeacher() {
+      return isAuthenticated() && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'Teacher';
+    }
+
+    function isParent() {
+      return isAuthenticated() && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'Parent';
+    }
+
+    function isAdmin() {
+      return isAuthenticated() && 
+             (request.auth.token.email == "kakshayar02@gmail.com" && request.auth.token.email_verified == true);
+    }
+
+    match /users/{userId} {
+      allow read: if isAuthenticated();
+      allow create: if isOwner(userId) && isValidUser(request.resource.data) && uidUnchanged();
+      allow update: if isOwner(userId) || 
+                       (isTeacher() && (
+                         request.resource.data.diff(resource.data).affectedKeys().hasOnly(['teacherId', 'assignedLessons'])
+                       )) ||
+                       (isAuthenticated() && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['friendRequests', 'friends', 'lastSeen']));
+      allow delete: if isAdmin();
+    }
+
+    match /lessons/{lessonId} {
+      allow read: if isAuthenticated();
+      allow create: if isTeacher() || isAdmin();
+      allow update: if isAdmin() || (isTeacher() && resource.data.teacherId == request.auth.uid);
+      allow delete: if isAdmin() || (isTeacher() && resource.data.teacherId == request.auth.uid);
+    }
+
+    match /assignments/{assignmentId} {
+      allow read: if isAuthenticated();
+      allow create: if isTeacher() || isAdmin();
+      allow update: if isAdmin() || isTeacher() || (isAuthenticated() && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status']));
+      allow delete: if isTeacher() || isAdmin();
+    }
+
+    match /messages/{messageId} {
+      allow read: if isAuthenticated() && (request.auth.uid == resource.data.senderId || request.auth.uid == resource.data.receiverId);
+      allow create: if isAuthenticated() && request.resource.data.senderId == request.auth.uid;
+      allow update: if false;
+      allow delete: if false;
+    }
+
+    match /chats/{chatId} {
+      allow read: if isAuthenticated() && request.auth.uid in resource.data.participants;
+      allow create: if isAuthenticated() && request.auth.uid in request.resource.data.participants;
+      
+      match /messages/{messageId} {
+        allow read: if isAuthenticated() && request.auth.uid in get(/databases/$(database)/documents/chats/$(chatId)).data.participants;
+        allow create: if isAuthenticated() && request.auth.uid in get(/databases/$(database)/documents/chats/$(chatId)).data.participants;
+      }
+    }
+
+    // Default deny
+    match /{path=**} {
+      allow read, write: if false;
+    }
+  }
+}
