@@ -1,10 +1,7 @@
 🎓 Rural Learn – AI-Powered Gamified Learning Platform
 
-🔗 Live Demo:
-Rural Learn Live Demo
-
-📂 GitHub Repository:
-Rural Learn GitHub Repository
+🔗 Live Project Demo:
+🌐 https://rural-learn-platform.vercel.app/
 
 📚 About The Project
 
@@ -23,20 +20,25 @@ The application provides separate dashboards for students, teachers, and parents
 👨‍🏫 Student, Teacher & Parent dashboards
 📊 Progress tracking and monitoring
 🎨 Fantasy-inspired interactive UI themes
+
 🛠️ Technologies Used
 Frontend
 React.js
 HTML5
 CSS3
 JavaScript
+
 Backend & Database
 Firebase Authentication
 Firebase Firestore
+
 APIs & Integrations
 Gemini API
 Voice Support APIs
+
 Deployment
 Vercel
+
 ⚙️ Installation
 Clone the Repository
 git clone https://github.com/akshayakondam/rural-learn-platform.git
